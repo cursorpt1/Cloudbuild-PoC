@@ -8,5 +8,6 @@ steps:
   - name: 'python'
     entrypoint: 'python3'
     args: ['-m', 'mkdocs', 'build', '--config-file', 'mkdocs.yml']
-    
+options:
+  logging: CLOUD_LOGGING_ONLY
 timeout: '600s' # Tiempo suficiente para que el script se ejecute
