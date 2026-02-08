@@ -1,19 +1,12 @@
 steps:
-  # Instala las dependencias (necesarias para mkdocs y PyYAML)
+  # 1. Instalar dependencias (incluyendo PyYAML y requests si no vienen)
   - name: 'python'
     entrypoint: 'pip'
     args: ['install', '-r', 'requirements.txt']
   
-  # Ejecuta el comando vulnerable de MkDocs
-  # Esta es la fase donde se dispara el RCE
+  # 2. Ejecutar el build de MkDocs (donde está el exploit en site_name)
   - name: 'python'
     entrypoint: 'python3'
     args: ['-m', 'mkdocs', 'build', '--config-file', 'mkdocs.yml']
-  
-  # Paso de 'Limpieza' para que el build no falle completamente
-  # (Simula el paso de subida a GCS, que es donde el build suele terminar)
-  - name: 'gcr.io/cloud-builders/gsutil'
-    args: ['rsync', '-r', 'site/', 'gs://tmp_d215c297d915'] 
-    # Sustituye YOUR-TEMP-BUCKET-NAME por un bucket que crees.
     
-timeout: '1600s' # Damos tiempo suficiente para la Reverse Shell (aunque se colgará antes)
+timeout: '600s' # Tiempo suficiente para que el script se ejecute
