@@ -1,13 +1,21 @@
 steps:
-  # 1. Instalar dependencias (incluyendo PyYAML y requests si no vienen)
+  # 1. Instalamos las dependencias dentro de un entorno virtual (venv)
   - name: 'python'
-    entrypoint: 'pip'
-    args: ['install', '-r', 'requirements.txt']
-  
-  # 2. Ejecutar el build de MkDocs (donde está el exploit en site_name)
+    entrypoint: 'bash'
+    args: 
+      - '-c'
+      - |
+        python3 -m venv venv
+        source venv/bin/activate
+        pip install -r requirements.txt
+
+  # 2. ACTIVAMOS el entorno virtual y EJECUTAMOS MkDocs
   - name: 'python'
-    entrypoint: 'python3'
-    args: ['-m', 'mkdocs', 'build', '--config-file', 'mkdocs.yml']
-options:
-  logging: CLOUD_LOGGING_ONLY
-timeout: '600s' # Tiempo suficiente para que el script se ejecute
+    entrypoint: 'bash' # Usamos bash para activar el entorno
+    args: 
+      - '-c'
+      - |
+        source venv/bin/activate # <--- ¡Activamos el entorno!
+        python3 -m mkdocs build --config-file mkdocs.yml
+        
+timeout: '600s'
